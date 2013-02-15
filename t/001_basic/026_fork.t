@@ -9,7 +9,7 @@ $db->setup_test_db;
 
     if (fork) {
         wait;
-        my $row = $db->insert('mock_basic',{id => 1, name => 'perl'});
+        my $row = $db->insert_and_select('mock_basic',{id => 1, name => 'perl'});
         is $row->id, 1;
         is $dbh, $db->dbh;
 

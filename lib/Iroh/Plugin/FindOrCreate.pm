@@ -9,7 +9,7 @@ sub find_or_create {
     my ($self, $table, $args) = @_;
     my $row = $self->single($table, $args);
     return $row if $row;
-    $self->insert($table, $args)->refetch;
+    $self->insert_and_select($table, $args)->refetch;
 }
 
 1;

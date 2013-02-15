@@ -8,7 +8,7 @@ $db->setup_test_db;
 Mock::Basic->load_plugin('Replace');
 
 subtest 'replace mock_basic data' => sub {
-    my $row = $db->insert('mock_basic',{
+    my $row = $db->insert_and_select('mock_basic',{
         id   => 1,
         name => 'perl',
     });

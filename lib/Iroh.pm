@@ -327,14 +327,14 @@ sub do_insert {
     $self->execute($sql, \@binds);
 }
 
-sub fast_insert {
+sub insert {
     my ($self, $table_name, $args, $prefix) = @_;
 
     $self->do_insert($table_name, $args, $prefix);
     $self->_last_insert_id($table_name);
 }
 
-sub insert {
+sub insert_and_select {
     my ($self, $table_name, $args, $prefix) = @_;
 
     $self->do_insert($table_name, $args, $prefix);
@@ -656,7 +656,7 @@ Iroh - very simple DBI wrapper/ORMapper
 =head1 SYNOPSIS
 
     my $db = MyDB->new({ connect_info => [ 'dbi:SQLite:' ] });
-    my $row = $db->insert( 'table' => {
+    my $row = $db->insert_and_select( 'table' => {
         col1 => $value
     } );
 
@@ -691,7 +691,7 @@ in your script.
     
     my $teng = Your::Model->new(\%args);
     # insert new record.
-    my $row = $teng->insert('user',
+    my $row = $teng->insert_and_select('user',
         {
             id   => 1,
         }
@@ -815,20 +815,20 @@ with SQL::Maker.
 
 =back
 
-=item $row = $teng->insert($table_name, \%row_data)
+=item $row = $teng->insert_and_select($table_name, \%row_data)
 
 Inserts a new record. Returns the inserted row object.
 
-    my $row = $teng->insert('user',{
+    my $row = $teng->insert_and_select('user',{
         id   => 1,
         name => 'nekokak',
     });
 
 If a primary key is available, it will be fetched after the insert -- so
 an INSERT followed by SELECT is performed. If you do not want this, use
-C<fast_insert>.
+C<insert>.
 
-=item $last_insert_id = $teng->fast_insert($table_name, \%row_data);
+=item $last_insert_id = $teng->insert($table_name, \%row_data);
 
 insert new record and get last_insert_id.
 

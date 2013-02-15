@@ -71,7 +71,7 @@ subtest 'update row count' => sub {
 };
 
 subtest 'update primary key' => sub {
-    my $row = $db->insert('mock_basic',{
+    my $row = $db->insert_and_select('mock_basic',{
         id   => 3,
         name => 'php',
     });

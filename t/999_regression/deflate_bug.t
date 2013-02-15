@@ -10,7 +10,7 @@ $db->setup_test_db;
 subtest 'scalar data bug case' => sub {
     my $name = Mock::Inflate::Name->new(name => 'perl');
 
-    my $row = $db->insert('mock_inflate',{
+    my $row = $db->insert_and_select('mock_inflate',{
         id   => 1,
         name => 'azumakuniyuki',
     });

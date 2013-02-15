@@ -7,7 +7,7 @@ my $db = Mock::Basic->new({dbh => $dbh});
 $db->setup_test_db;
 
 subtest 'get_columns' => sub {
-    my $row = $db->insert('mock_basic',{
+    my $row = $db->insert_and_select('mock_basic',{
         id   => 1,
         name => 'perl',
     });
@@ -20,7 +20,7 @@ subtest 'get_columns' => sub {
 };
 
 subtest 'get_columns multi line' => sub {
-    my $row = $db->insert('mock_basic',{
+    my $row = $db->insert_and_select('mock_basic',{
         id   => 2,
         name => 'ruby',
     });

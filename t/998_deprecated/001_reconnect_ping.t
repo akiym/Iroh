@@ -15,7 +15,7 @@ subtest 'ping_reconnect' => sub {
     my $old_dbh = $db->dbh;
     eval {
         my $guard; $guard = mock_guard('DBI::db' => +{ping => sub { undef $guard; return 0 } });
-        $row = $db->insert('mock_basic',{
+        $row = $db->insert_and_select('mock_basic',{
             name => 'perl',
         });
     };
@@ -35,7 +35,7 @@ subtest 'ping_reconnect_at_txn_begin' => sub {
     ok(!$@);
     isnt($old_dbh, $db->dbh);
 
-    my $row = $db->insert('mock_basic',{
+    my $row = $db->insert_and_select('mock_basic',{
         name => 'python',
     });
     $db->txn_commit;
@@ -54,7 +54,7 @@ subtest 'ping_reconnect_at_txn_scope' => sub {
     ok(!$@);
     isnt($old_dbh, $db->dbh);
 
-    my $row = $db->insert('mock_basic',{
+    my $row = $db->insert_and_select('mock_basic',{
         name => 'ruby',
     });
     $scope->commit;
@@ -69,7 +69,7 @@ subtest 'ping_reconnect_at_after_txn_begin' => sub {
     my $row;
     eval {
         my $guard; $guard = mock_guard('DBI::db' => +{ping => sub { undef $guard; return 0 } });
-        $row = $db->insert('mock_basic',{
+        $row = $db->insert_and_select('mock_basic',{
             name => 'c++',
         });
     };
@@ -86,7 +86,7 @@ subtest 'ping_reconnect_at_after_txn_scope' => sub {
     my $row;
     eval {
         my $guard; $guard = mock_guard('DBI::db' => +{ping => sub { undef $guard; return 0 } });
-        $row = $db->insert('mock_basic',{
+        $row = $db->insert_and_select('mock_basic',{
             name => 'golang',
         });
     };
@@ -99,7 +99,7 @@ subtest 'ping_reconnect_at_txn_commit' => sub {
     $db->reconnect;
     $db->txn_begin;
 
-    my $row = $db->insert('mock_basic',{
+    my $row = $db->insert_and_select('mock_basic',{
         name => 'basic',
     });
 
@@ -119,7 +119,7 @@ subtest 'ping_reconnect_at_txn_scope_commit' => sub {
     {
         my $scope = $db->txn_scope;
 
-        $row = $db->insert('mock_basic',{
+        $row = $db->insert_and_select('mock_basic',{
             name => 'cobol',
         });
 

@@ -10,7 +10,7 @@ $db->setup_test_db;
 subtest 'set_column value un deflate bug' => sub {
     my $name = Mock::Inflate::Name->new(name => 'nihen');
 
-    my $row = $db->insert('mock_inflate',{
+    my $row = $db->insert_and_select('mock_inflate',{
         id   => 1,
         name => 'tsucchi',
         foo  => 'bar',

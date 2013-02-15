@@ -11,7 +11,7 @@ subtest 'insert using txn_scope' => sub {
     local $SIG{__WARN__} = sub { $warning = $_[0] };
     {
         my $guard = $db->txn_scope();
-        my $row = $db->insert('mock_basic',{
+        my $row = $db->insert_and_select('mock_basic',{
             id   => 1,
             name => 'perl',
         });
@@ -30,7 +30,7 @@ subtest 'insert using txn_scope (and let the guard fire)' => sub {
     local $SIG{__WARN__} = sub { $warning = $_[0] };
     {
         my $guard = $db->txn_scope();
-        my $row = $db->insert('mock_basic',{
+        my $row = $db->insert_and_select('mock_basic',{
             id   => 1,
             name => 'perl',
         });

@@ -69,7 +69,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
         $teng->insert( 'a_multi_pk_table', { id_a => 1, id_b => 1 } );
         $teng->insert( 'a_multi_pk_table', { id_a => 1, id_b => 2 } );
         $teng->insert( 'a_multi_pk_table', { id_a => 1, id_b => 3 } );
-        my $data = $teng->insert( 'a_multi_pk_table', { id_a => 2, id_b => 1 } );
+        my $data = $teng->insert_and_select( 'a_multi_pk_table', { id_a => 2, id_b => 1 } );
         $teng->insert( 'a_multi_pk_table', { id_a => 2, id_b => 2 } );
 
         is( $data->id_a, 2 );
@@ -131,7 +131,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
     subtest 'multi pk row insert' => sub {
         my ( $rs, @rows, $row );
 
-        $row = $teng->insert( 'a_multi_pk_table', { id_a => 3, id_b => 40 } );
+        $row = $teng->insert_and_select( 'a_multi_pk_table', { id_a => 3, id_b => 40 } );
 
         is_deeply( $row->get_columns, { id_a => 3, id_b => 40 } );
 
@@ -152,7 +152,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
         $teng->insert( 'c_multi_pk_table', { id_c => 1, id_d => 1 } );
         $teng->insert( 'c_multi_pk_table', { id_c => 1, id_d => 2 } );
         $teng->insert( 'c_multi_pk_table', { id_c => 1, id_d => 3 } );
-        my $data = $teng->insert( 'c_multi_pk_table', { id_c => 2, id_d => 1 } );
+        my $data = $teng->insert_and_select( 'c_multi_pk_table', { id_c => 2, id_d => 1 } );
         $teng->insert( 'c_multi_pk_table', { id_c => 2, id_d => 2 } );
 
         is( $data->id_c, 2 );
@@ -212,7 +212,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
     subtest 'multi pk row insert' => sub {
         my ( $rs, @rows, $row );
 
-        $row = $teng->insert( 'c_multi_pk_table', { id_c => 3, id_d => 40 } );
+        $row = $teng->insert_and_select( 'c_multi_pk_table', { id_c => 3, id_d => 40 } );
 
         is_deeply( $row->get_columns, { id_c => 3, id_d => 40 } );
 
@@ -242,7 +242,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
 
     subtest 'multi pk delete' => sub {
         is($teng->search_by_sql('SELECT COUNT(*) AS cnt FROM c_multi_pk_table')->next->get_column('cnt'), 7);
-        my $row = $teng->insert('c_multi_pk_table' => {id_c => 50, id_d => 44});
+        my $row = $teng->insert_and_select('c_multi_pk_table' => {id_c => 50, id_d => 44});
         is($teng->search_by_sql('SELECT COUNT(*) AS cnt FROM c_multi_pk_table')->next->get_column('cnt'), 8);
         is($row->delete(), 1);
         is($teng->search_by_sql('SELECT COUNT(*) AS cnt FROM c_multi_pk_table')->next->get_column('cnt'), 7);

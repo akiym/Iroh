@@ -11,7 +11,7 @@ my $db = Mock::Basic->new({dbh => $dbh});
 $db->setup_test_db;
 
 subtest 'insert mock_basic data/ insert method' => sub {
-    my $row = $db->insert('mock_basic',{
+    my $row = $db->insert_and_select('mock_basic',{
         id   => 1,
         name => 'perl',
     });
@@ -26,7 +26,7 @@ subtest 'disconnect' => sub {
 
 subtest 'insert after disconnect trigger a connect' => sub {
     my $db = Mock::Basic->new({dbh => t::Utils->setup_dbh($file)});
-    my $row = $db->insert('mock_basic',{
+    my $row = $db->insert_and_select('mock_basic',{
         id   => 2,
         name => 'ruby',
     });

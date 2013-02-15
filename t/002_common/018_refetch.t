@@ -7,7 +7,7 @@ my $db = Mock::Basic->new({dbh => $dbh});
 $db->setup_test_db;
 
 subtest 'refetch' => sub {
-    my $row = $db->insert('mock_basic',{
+    my $row = $db->insert_and_select('mock_basic',{
         id   => 1,
         name => 'perl',
     });

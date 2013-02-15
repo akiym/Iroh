@@ -10,7 +10,7 @@ $db->setup_test_db;
 subtest 'insert mock_inflate data' => sub {
     my $name = Mock::Inflate::Name->new(name => 'perl');
 
-    my $row = $db->insert('mock_inflate',{
+    my $row = $db->insert_and_select('mock_inflate',{
         id   => 1,
         name => $name,
         foo  => $name,
@@ -89,7 +89,7 @@ subtest 'update row twice case' => sub {
 subtest 'insert/update on non existent table' => sub {
     eval {
         my $name = Mock::Inflate::Name->new(name => 'perl');
-        my $row = $db->insert('mock_inflate_non_existent1',{
+        my $row = $db->insert_and_select('mock_inflate_non_existent1',{
             id   => 1,
             name => $name,
             foo  => $name,

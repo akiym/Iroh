@@ -74,7 +74,7 @@ subtest "dump all tables" => sub {
     my $row_class = $db->schema->get_row_class('user1');
     isa_ok $row_class, 'Mock::DB::Row::User1';
 
-    my $row = $db->insert('user1', +{name => 'nekokak', email => 'nekokak@gmail.com'});
+    my $row = $db->insert_and_select('user1', +{name => 'nekokak', email => 'nekokak@gmail.com'});
     is $row->email, 'nekokak@gmail.com_deflate_inflate';
     is $row->get_column('email'), 'nekokak@gmail.com_deflate';
 };
