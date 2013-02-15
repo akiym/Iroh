@@ -18,8 +18,6 @@ use Class::Load ();
 sub new {
     my ($class, %args) = @_;
     my $self = bless {
-        deflators       => [],
-        inflators       => [],
         escaped_columns => {},
         base_row_class  => 'Iroh::Row',
         %args
@@ -46,68 +44,6 @@ sub new {
 sub get_sql_type {
     my ($self, $column_name) = @_;
     $self->sql_types->{ $column_name };
-}
-
-sub add_deflator {
-    my ($self, $rule, $code) = @_;
-    if ( ref $rule ne 'Regexp' ) {
-        $rule = qr/^\Q$rule\E$/;
-    }
-    unless (ref($code) eq 'CODE') {
-        Carp::croak('deflate code must be coderef.');
-    }
-    push @{ $self->{deflators} }, ( $rule, $code );
-}
-
-sub add_inflator {
-    my ($self, $rule, $code) = @_;
-    if ( ref $rule ne 'Regexp' ) {
-        $rule = qr/^\Q$rule\E$/;
-    }
-    unless (ref($code) eq 'CODE') {
-        Carp::croak('inflate code must be coderef.');
-    }
-    push @{ $self->{inflators} }, ( $rule, $code );
-}
-
-sub call_deflate {
-    my ($self, $col_name, $col_value) = @_;
-    my $rules = $self->{deflators};
-    my $i = 0;
-    my $max = @$rules;
-    while ( $i < $max ) {
-        my ($rule, $code) = @$rules[ $i, $i + 1 ];
-        if ($col_name =~ /$rule/) {
-            return $code->($col_value);
-        }
-        $i += 2;
-    }
-    return $col_value;
-}
-
-sub call_inflate {
-    my ($self, $col_name, $col_value) = @_;
-    my $rules = $self->{inflators};
-    my $i = 0;
-    my $max = @$rules;
-    while ( $i < $max ) {
-        my ($rule, $code) = @$rules[ $i, $i + 1 ];
-        if ($col_name =~ /$rule/) {
-            return $code->($col_value);
-        }
-        $i += 2;
-    }
-    return $col_value;
-}
-
-sub has_deflators {
-    my $self = shift;
-    return scalar @{ $self->{deflators} };
-}
-
-sub has_inflators {
-    my $self = shift;
-    return scalar @{ $self->{inflators} };
 }
 
 sub prepare_from_dbh {
@@ -138,37 +74,5 @@ create new Iroh::Schema::Table's object.
 =item $table->get_sql_type
 
 get column SQL type.
-
-=item $table->get_deflator
-
-get deflate coderef.
-
-=item $table->get_inflator
-
-get inflate coderef.
-
-=item $table->set_deflator
-
-set deflate coderef.
-
-=item $table->set_inflator
-
-set inflate coderef.
-
-=item $table->call_deflate
-
-execute deflate.
-
-=item $table->call_inflate
-
-execute inflate.
-
-=item $table->has_deflators()
-
-Returns true if there are any deflators
-
-=item $table->has_inflators();
-
-Returns true if there are any inflators
 
 =back

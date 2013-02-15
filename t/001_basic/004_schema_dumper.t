@@ -39,18 +39,6 @@ subtest "dump all tables" => sub {
     my $code = Iroh::Schema::Dumper->dump(
         dbh       => $dbh,
         namespace => 'Mock::DB',
-        inflate   => +{
-            user1 => q|
-                inflate 'email' => sub {
-                    my ($col_value) = @_;
-                    $col_value . '_inflate';
-                };
-                deflate 'email' => sub {
-                    my ($col_value) = @_;
-                    $col_value . '_deflate';
-                };
-            |,
-        },
     );
     note $code;
     my $schema = eval $code;
@@ -75,8 +63,8 @@ subtest "dump all tables" => sub {
     isa_ok $row_class, 'Mock::DB::Row::User1';
 
     my $row = $db->insert_and_select('user1', +{name => 'nekokak', email => 'nekokak@gmail.com'});
-    is $row->email, 'nekokak@gmail.com_deflate_inflate';
-    is $row->get_column('email'), 'nekokak@gmail.com_deflate';
+    is $row->email, 'nekokak@gmail.com';
+    is $row->get_column('email'), 'nekokak@gmail.com';
 };
 
 subtest "dump single table" => sub {

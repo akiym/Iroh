@@ -56,10 +56,6 @@ sub _render_table {
     }
     $ret .= "    );\n";
 
-    if (my $rule = $args->{inflate}->{$table_info->name}) {
-        $ret .= $rule;
-    }
-
     $ret .= "};\n\n";
 
     return $ret;
@@ -81,27 +77,6 @@ Iroh::Schema::Dumper - Schema code generator
     print Iroh::Schema::Dumper->dump(
         dbh       => $dbh,
         namespace => 'Mock::DB',
-        inflate   => +{
-            user => q|
-                use Mock::Inflate::Name;
-                inflate 'name' => sub {
-                    my ($col_value) = @_;
-                    return Mock::Inflate::Name->new(name => $col_value);
-                };
-                deflate 'name' => sub {
-                    my ($col_value) = @_;
-                    return ref $col_value ? $col_value->name : $col_value . '_deflate';
-                };
-                inflate qr/.+oo/ => sub {
-                    my ($col_value) = @_;
-                    return Mock::Inflate::Name->new(name => $col_value);
-                };
-                deflate qr/.+oo/ => sub {
-                    my ($col_value) = @_;
-                    return ref $col_value ? $col_value->name : $col_value . '_deflate';
-                };
-            |,
-        },
     );
 
 =head1 DESCRIPTION

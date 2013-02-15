@@ -319,9 +319,6 @@ sub do_insert {
         Carp::croak( "Table definition for $table_name does not exist (Did you declare it in our schema?)" );
     }
 
-    for my $col (keys %{$args}) {
-        $args->{$col} = $table->call_deflate($col, $args->{$col});
-    }
     my $bind_args = $self->_bind_sql_type_to_args( $table, $args );
     my ($sql, @binds) = $self->{sql_builder}->insert( $table_name, $bind_args, { prefix => $prefix } );
     $self->execute($sql, \@binds);
@@ -377,14 +374,6 @@ sub bulk_insert {
             Carp::croak( "Table definition for $table_name does not exist (Did you declare it in our schema?)" );
         }
 
-        if ( $table->has_deflators ) {
-            for my $row (@$args) {
-                for my $col (keys %{$row}) {
-                    $row->{$col} = $table->call_deflate($col, $row->{$col});
-                }
-            }
-        }
-
         my ($sql, @binds) = $self->sql_builder->insert_multi( $table_name, $args );
         $self->execute($sql, \@binds);
     } else {
@@ -417,10 +406,6 @@ sub update {
         Carp::croak( "Table definition for $table_name does not exist (Did you declare it in our schema?)" );
     }
 
-    for my $col (keys %{$args}) {
-       $args->{$col} = $table->call_deflate($col, $args->{$col});
-    }
-    
     $self->do_update($table_name, $self->_bind_sql_type_to_args( $table, $args ), $where);
 }
 
@@ -893,8 +878,6 @@ you can column update by using column method:
 =item $updated_row_count = $teng->do_update($table_name, \%set, \%where)
 
 This is low level API for UPDATE. Normally, you should use update method instead of this.
-
-This method does not deflate \%args.
 
 =item $delete_row_count = $teng->delete($table, \%delete_condition)
 

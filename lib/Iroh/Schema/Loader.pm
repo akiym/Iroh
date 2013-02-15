@@ -45,8 +45,6 @@ sub load {
                 name         => $table_name,
                 primary_keys => \@table_pk,
                 sql_types    => \%sql_types,
-                inflators    => [],
-                deflators    => [],
                 row_class    => join '::', $namespace, 'Row', Iroh::Schema::camelize($table_name),
             )
         );

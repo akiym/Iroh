@@ -13,8 +13,6 @@ our @EXPORT = qw(
     columns
     row_class
     base_row_class
-    inflate
-    deflate
 );
 our $CURRENT_SCHEMA_CLASS;
 
@@ -71,7 +69,6 @@ sub pk(@);
 sub columns(@);
 sub name ($);
 sub row_class ($);
-sub inflate_rule ($@);
 sub table(&) {
     my $code = shift;
     my $current = _current_schema();
@@ -80,8 +77,6 @@ sub table(&) {
         $table_name,
         @table_pk,
         @table_columns,
-        @inflate,
-        @deflate,
         $row_class,
     );
     no warnings 'redefine';
@@ -96,20 +91,6 @@ sub table(&) {
     local *{"$dest_class\::pk"}        = sub (@) { @table_pk = @_ };
     local *{"$dest_class\::columns"}   = sub (@) { @table_columns = @_ };
     local *{"$dest_class\::row_class"} = sub (@) { $row_class = shift };
-    local *{"$dest_class\::inflate"} = sub ($&) {
-        my ($rule, $code) = @_;
-        if (ref $rule ne 'Regexp') {
-            $rule = qr/^\Q$rule\E$/;
-        }
-        push @inflate, ($rule, $code);
-    };
-    local *{"$dest_class\::deflate"} = sub ($&) {
-        my ($rule, $code) = @_;
-        if (ref $rule ne 'Regexp') {
-            $rule = qr/^\Q$rule\E$/;
-        }
-        push @deflate, ($rule, $code);
-    };
 
     $code->();
 
@@ -131,8 +112,6 @@ sub table(&) {
             name         => $table_name,
             primary_keys => \@table_pk,
             sql_types    => \%sql_types,
-            inflators    => \@inflate,
-            deflators    => \@deflate,
             row_class    => $row_class,
             ($current->{__base_row_class} ? (base_row_class => $current->{__base_row_class}) : ()),
         )
@@ -158,14 +137,6 @@ Iroh::Schema::Declare - DSL For Declaring Iroh Schema
         name    "your_table_name";
         pk      "primary_key";
         columns qw( col1 col2 col3 );
-        inflate 'col1' => sub {
-            my ($col_value) = @_;
-            return MyDB::Class->new(name => $col_value);
-        };
-        deflate 'col1' => sub {
-            my ($col_value) = @_;
-            return ref $col_value ? $col_value->name : $col_value;
-        };
         row_class 'MyDB::Row'; # optional
     };
 
@@ -198,10 +169,6 @@ set primary key
 =item columns
 
 set columns
-
-=item inflate_rule
-
-set inflate rule
 
 =item row_namespace
 

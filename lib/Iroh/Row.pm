@@ -37,7 +37,7 @@ sub generate_column_accessor {
         my $cache = $self->{_get_column_cached};
         my $data = $cache->{$col};
         if (! $data) {
-            $data = $cache->{$col} = $self->{table} ? $self->{table}->call_inflate($col, $self->get_column($col)) : $self->get_column($col);
+            $data = $cache->{$col} = $self->get_column($col);
         }
         return $data;
     };
@@ -112,9 +112,6 @@ sub update {
     }
 
     %$upd = (%{$self->get_dirty_columns}, %{$upd||+{}});
-    for my $col (keys %{$upd}) {
-       $upd->{$col} = $table->call_deflate($col, $upd->{$col});
-    }
 
     my $where = $self->_where_cond;
     $self->set_columns($upd);
@@ -213,15 +210,11 @@ create new Iroh::Row's instance
 
 get a column value from a row object.
 
-Note: This method does not inflate values.
-
 =item $row->get_columns
 
     my $data = $row->get_columns;
 
 Does C<get_column>, for all column values.
-
-Note: This method does not inflate values.
 
 =item $row->set_columns(\%new_row_data)
 
