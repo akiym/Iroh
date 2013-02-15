@@ -24,17 +24,5 @@ subtest 'bulk_insert method' => sub {
     is +$db_basic->count('mock_basic', 'id'), 3;
 };
 
-subtest 'DEPRECATED' => sub {
-    my $buffer = '';
-    open my $fh, '>', \$buffer or die "Could not open in-memory buffer";
-    *STDERR = $fh;
-
-        Mock::Basic->load_plugin('BulkInsert');
-
-    close $fh;
-
-    like $buffer, qr/IMPORTANT: Iroh::Plugin::BulkInsert is DEPRECATED AND \*WILL\* BE REMOVED\. DO NOT USE\./;
-};
-
 done_testing;
 
