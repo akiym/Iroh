@@ -43,17 +43,5 @@ subtest 'execute method' => sub {
     }
 };
 
-subtest 'DEPRECATED' => sub {
-    my $buffer = '';
-    open my $fh, '>', \$buffer or die "Could not open in-memory buffer";
-    *STDERR = $fh;
-
-        $db_basic->_execute('SELECT * FROM mock_basic');
-
-    close $fh;
-
-    like $buffer, qr/IMPORTANT: '_execute' method is DEPRECATED AND \*WILL\* BE REMOVED\. PLEASE USE 'execute' method\./;
-};
-
 done_testing;
 
