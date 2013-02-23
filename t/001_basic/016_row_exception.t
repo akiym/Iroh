@@ -11,7 +11,7 @@ $db->insert('mock_basic',{
 });
 
 subtest 'update/delete error: no table info' => sub {
-    my $row = $db->search_by_sql(q{SELECT name FROM mock_basic})->next;
+    my ($row) = $db->search_by_sql(q{SELECT name FROM mock_basic});
 
     isa_ok $row, 'Iroh::Row';
 
@@ -69,7 +69,7 @@ subtest 'update/delete error: table have no pk' => sub {
 };
 
 subtest 'update/delete error: select column has no primary key' => sub {
-    my $row = $db->search_by_sql('select name from mock_basic')->next;
+    my ($row) = $db->search_by_sql('select name from mock_basic');
     isa_ok $row, 'Iroh::Row';
 
     eval {

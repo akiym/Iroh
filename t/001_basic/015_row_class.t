@@ -106,7 +106,7 @@ subtest 'your row class AUTOLOAD' => sub {
 };
 
 subtest 'AUTOLOAD' => sub {
-    my $row = $db_basic->search_by_sql(q{select id as mock_basic_id from mock_basic where id = 1})->next;
+    my ($row) = $db_basic->search_by_sql(q{select id as mock_basic_id from mock_basic where id = 1});
     isa_ok $row, 'Iroh::Row';
     is $row->mock_basic_id, 1;
     ok ! $row->can('mock_basic_id');
@@ -115,7 +115,7 @@ subtest 'AUTOLOAD' => sub {
 subtest 'can not use (update|delete) method' => sub {
     $db_basic->do('create table test_db (id integer)');
     $db_basic->do('insert into test_db (id) values (1)');
-    my $row = $db_basic->search_by_sql(q{select id from test_db where id = 1})->next;
+    my ($row) = $db_basic->search_by_sql(q{select id from test_db where id = 1});
     isa_ok $row, 'Iroh::Row';
     is $row->id, 1;
     eval {

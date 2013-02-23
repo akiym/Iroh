@@ -26,7 +26,7 @@ subtest 'get_columns multi line' => sub {
     });
     isa_ok $row, 'Iroh::Row';
 
-    my $data = [map {$_->get_columns} $db->search('mock_basic')->all];
+    my $data = [map {$_->get_columns} $db->search('mock_basic')];
     is_deeply $data, [
         {
             name => 'perl',

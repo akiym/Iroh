@@ -6,7 +6,6 @@ use Class::Load ();
 use Data::Dumper ();
 use DBI 1.33;
 use Iroh::Row;
-use Iroh::Iterator;
 use Iroh::Schema;
 use DBIx::TransactionManager 1.06;
 use Iroh::QueryBuilder;
@@ -527,16 +526,30 @@ sub search_by_sql {
 
     $table_name ||= $self->_guess_table_name( $sql );
     my $sth = $self->execute($sql, $bind);
-    my $itr = Iroh::Iterator->new(
-        teng             => $self,
-        sth              => $sth,
-        sql              => $sql,
-        row_class        => $self->{schema}->get_row_class($table_name),
-        table            => $self->{schema}->get_table( $table_name ),
-        table_name       => $table_name,
-        suppress_object_creation => $self->{suppress_row_objects},
-    );
-    return wantarray ? $itr->all : $itr;
+
+    my $result = $sth->fetchall_arrayref(+{});
+    $sth->finish;
+
+    if (!$self->{suppress_row_objects}) {
+        my $row_class = $self->{schema}->get_row_class($table_name);
+        my %args = (
+            sql            => $sql,
+            teng           => $self,
+            table_name     => $table_name,
+            table          => $self->{schema}->get_table($table_name),
+            select_columns => $sth->{$self->{fields_case}},
+        );
+        $result = [map {
+            $row_class->new(
+                {
+                    row_data => $_,
+                    %args,
+                }
+            );
+        } @$result];
+    }
+
+    @$result;
 }
 
 sub single_by_sql {
@@ -863,20 +876,9 @@ You can also call delete on a row object:
     my $row = $teng->single('user', {id => 1});
     $row->delete
 
-=item $itr = $teng->search($table_name, [\%search_condition, [\%search_attr]])
+=item @rows = $teng->search($table_name, [\%search_condition, [\%search_attr]])
 
 simple search method.
-search method get Iroh::Iterator's instance object.
-
-see L<Iroh::Iterator>
-
-get iterator:
-
-    my $itr = $teng->search('user',{id => 1},{order_by => 'id'});
-
-get rows:
-
-    my @rows = $teng->search('user',{id => 1},{order_by => 'id'});
 
 =item $row = $teng->single($table_name, \%search_condition)
 
@@ -885,26 +887,26 @@ give back one case of the beginning when it is acquired plural records by single
 
     my $row = $teng->single('user',{id =>1});
 
-=item $itr = $teng->search_named($sql, [\%bind_values, [$table_name]])
+=item @rows = $teng->search_named($sql, [\%bind_values, [$table_name]])
 
 execute named query
 
-    my $itr = $teng->search_named(q{SELECT * FROM user WHERE id = :id}, {id => 1});
+    my @rows = $teng->search_named(q{SELECT * FROM user WHERE id = :id}, {id => 1});
 
 If you give ArrayRef to value, that is expanded to "(?,?,?,?)" in SQL.
 It's useful in case use IN statement.
 
     # SELECT * FROM user WHERE id IN (?,?,?);
     # bind [1,2,3]
-    my $itr = $teng->search_named(q{SELECT * FROM user WHERE id IN :ids}, {id => [1, 2, 3]});
+    my @rows = $teng->search_named(q{SELECT * FROM user WHERE id IN :ids}, {id => [1, 2, 3]});
 
 If you give table_name. It is assumed the hint that makes Iroh::Row's Object.
 
-=item $itr = $teng->search_by_sql($sql, [\@bind_values, [$table_name]])
+=item @rows = $teng->search_by_sql($sql, [\@bind_values, [$table_name]])
 
 execute your SQL
 
-    my $itr = $teng->search_by_sql(q{
+    my @rows = $teng->search_by_sql(q{
         SELECT
             id, name
         FROM
@@ -912,9 +914,6 @@ execute your SQL
         WHERE
             id = ?
     },[ 1 ]);
-
-If $table is specified, it set table infomation to result iterator.
-So, you can use table row class to search_by_sql result.
 
 =item $row = $teng->single_by_sql($sql, [\@bind_values, [$table_name]])
 
@@ -924,7 +923,7 @@ get one record from your SQL.
 
 This is a shortcut for
 
-    my $row = $teng->search_by_sql(q{SELECT id,name FROM user WHERE id = ? LIMIT 1}, [1], 'user')->next;
+    my ($row) = $teng->search_by_sql(q{SELECT id,name FROM user WHERE id = ? LIMIT 1}, [1], 'user');
 
 But optimized implementation.
 

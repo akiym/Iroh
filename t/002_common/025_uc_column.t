@@ -24,7 +24,7 @@ subtest 'single' => sub {
 };
 
 subtest 'single' => sub {
-    my $rows = [map {$_->get_columns} $db->search('mock_basic_camelcase')->all];
+    my $rows = [map {$_->get_columns} $db->search('mock_basic_camelcase')];
     is_deeply $rows, [+{
         Id        => 1,
         Name      => 'perl',

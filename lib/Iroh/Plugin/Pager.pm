@@ -4,7 +4,6 @@ use warnings;
 use utf8;
 use Carp ();
 use DBI;
-use Iroh::Iterator;
 use Data::Page::NoTotalEntries;
 
 our @EXPORT = qw/search_with_pager/;
@@ -36,30 +35,19 @@ sub search_with_pager {
         }
     );
 
-    my $sth = $self->dbh->prepare($sql) or Carp::croak $self->dbh->errstr;
-    $sth->execute(@binds) or Carp::croak $self->dbh->errstr;
+    my @ret = $self->search_by_sql($sql, \@binds, $table_name);
 
-    my $ret = [ Iroh::Iterator->new(
-        teng             => $self,
-        sth              => $sth,
-        sql              => $sql,
-        row_class        => $self->schema->get_row_class($table_name),
-        table            => $table,
-        table_name       => $table_name,
-        suppress_object_creation => $self->suppress_row_objects,
-    )->all];
-
-    my $has_next = ( $rows + 1 == scalar(@$ret) ) ? 1 : 0;
-    if ($has_next) { pop @$ret }
+    my $has_next = ( $rows + 1 == scalar(@ret) ) ? 1 : 0;
+    if ($has_next) { pop @ret }
 
     my $pager = Data::Page::NoTotalEntries->new(
         entries_per_page     => $rows,
         current_page         => $page,
         has_next             => $has_next,
-        entries_on_this_page => scalar(@$ret),
+        entries_on_this_page => scalar(@ret),
     );
 
-    return ($ret, $pager);
+    return (\@ret, $pager);
 }
 
 1;

@@ -80,7 +80,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
         $teng->insert( 'a_multi_pk_table', { id_a => 3, id_b => 30 } );
     };
 
-    my ( $itr, $a_multi_pk_table );
+    my $a_multi_pk_table;
 
     subtest 'multi pk search' => sub {
         my @rows = $teng->search( 'a_multi_pk_table', { id_a => 1 } );
@@ -102,7 +102,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
             ok ( not $teng->single( 'a_multi_pk_table', { id_a => 1, id_b => 3 } ) );
         }
 
-        $a_multi_pk_table = $teng->search( 'a_multi_pk_table', { id_a => 1 } )->next;
+        ($a_multi_pk_table) = $teng->search( 'a_multi_pk_table', { id_a => 1 } );
         ok( $a_multi_pk_table );
 
         my ( $id_a, $id_b ) = ( $a_multi_pk_table->id_a, $a_multi_pk_table->id_b );
@@ -113,7 +113,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
     };
 
     subtest 'multi pk search_by_sql' => sub {
-        my ( $itr, $row );
+        my $row;
 
         my @rows = $teng->search_by_sql(q{SELECT * FROM a_multi_pk_table WHERE id_a = ? AND id_b = ?}, [3, 10], 'a_multi_pk_table');
 
@@ -123,7 +123,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
         is( $row->memo, 'foobar' );
         $row->update( { memo => 'hoge' } );
 
-        $row = $teng->search_by_sql(q{SELECT * FROM a_multi_pk_table WHERE id_a = ? AND id_b = ?}, [3, 10])->next;
+        ($row) = $teng->search_by_sql(q{SELECT * FROM a_multi_pk_table WHERE id_a = ? AND id_b = ?}, [3, 10]);
 
         is( $row->memo, 'hoge' );
     };
@@ -183,7 +183,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
         is( 0+@rows, 2, 'delete and user has 2 books' );
         ok ( not $teng->single( 'c_multi_pk_table', { id_c => 1, id_d => 3 } ) );
 
-        $a_multi_pk_table = $teng->search( 'c_multi_pk_table', { id_c => 1 } )->next;
+        ($a_multi_pk_table) = $teng->search( 'c_multi_pk_table', { id_c => 1 } );
         ok( $a_multi_pk_table );
 
         my ( $id_c, $id_d ) = ( $a_multi_pk_table->id_c, $a_multi_pk_table->id_d );
@@ -204,7 +204,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
         is( $row->memo, 'foobar' );
         $row->update( { memo => 'hoge' } );
 
-        $row = $teng->search_by_sql(q{SELECT * FROM c_multi_pk_table WHERE id_c = ? AND id_d = ?}, [3, 10])->next;
+        ($row) = $teng->search_by_sql(q{SELECT * FROM c_multi_pk_table WHERE id_c = ? AND id_d = ?}, [3, 10]);
 
         is( $row->memo, 'hoge' );
     };
@@ -226,7 +226,7 @@ my $guard = MyGuard->new(sub { unlink $db_file });
     };
 
     subtest 'multi pk find_or_create' => sub {
-        my ( $rs, $itr, $row );
+        my ( $rs, $row );
 
         {
             my $row = $teng->find_or_create('c_multi_pk_table' => {id_c => 50, id_d => 90});
@@ -241,11 +241,11 @@ my $guard = MyGuard->new(sub { unlink $db_file });
     };
 
     subtest 'multi pk delete' => sub {
-        is($teng->search_by_sql('SELECT COUNT(*) AS cnt FROM c_multi_pk_table')->next->get_column('cnt'), 7);
+        is(($teng->search_by_sql('SELECT COUNT(*) AS cnt FROM c_multi_pk_table'))[0]->get_column('cnt'), 7);
         my $row = $teng->insert_and_select('c_multi_pk_table' => {id_c => 50, id_d => 44});
-        is($teng->search_by_sql('SELECT COUNT(*) AS cnt FROM c_multi_pk_table')->next->get_column('cnt'), 8);
+        is(($teng->search_by_sql('SELECT COUNT(*) AS cnt FROM c_multi_pk_table'))[0]->get_column('cnt'), 8);
         is($row->delete(), 1);
-        is($teng->search_by_sql('SELECT COUNT(*) AS cnt FROM c_multi_pk_table')->next->get_column('cnt'), 7);
+        is(($teng->search_by_sql('SELECT COUNT(*) AS cnt FROM c_multi_pk_table'))[0]->get_column('cnt'), 7);
     };
 }
 

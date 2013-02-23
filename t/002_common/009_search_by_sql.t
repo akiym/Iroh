@@ -11,10 +11,9 @@ $db->insert('mock_basic',{
 });
 
 subtest 'search_by_sql' => sub {
-    my $itr = $db->search_by_sql(q{SELECT * FROM mock_basic WHERE id = ?}, [1]);
-    isa_ok $itr, 'Iroh::Iterator';
+    my @rows = $db->search_by_sql(q{SELECT * FROM mock_basic WHERE id = ?}, [1]);
 
-    my $row = $itr->next;
+    my $row = $rows[0];
     isa_ok $row, 'Iroh::Row';
     is $row->id , 1;
     is $row->name, 'perl';
