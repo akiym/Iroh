@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Carp ();
 use Class::Load ();
+use Data::Dumper ();
 use DBI 1.33;
 use Iroh::Row;
 use Iroh::Iterator;
@@ -579,7 +580,6 @@ sub _guess_table_name {
 
 sub handle_error {
     my ($self, $stmt, $bind, $reason) = @_;
-    require Data::Dumper;
 
     local $Data::Dumper::Maxdepth = 2;
     $stmt =~ s/\n/\n          /gm;
